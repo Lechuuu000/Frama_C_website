@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Assignment 1</title>
+	
+    <link rel="stylesheet" type="text/css" href="{% static 'frama_app/styles.css' %}">
+</head>
+
+<body>
+	<div class="main-grid">
+		<div class="menu-bar">
+			<button><a href={% url 'frama_app:add_dir' %}>Add Directory</a></button>
+			<button><a href={% url 'frama_app:add_file' %}>Add File</a></button>
+			<button><a href={% url 'frama_app:delete_node' %}>Delete file/directory</a></button>
+		</div>
+		<div class="file-select">
+			<h1>Files:</h1>
+			{% if files %}
+				{%include "frama_app/filetree.html" %}
+			{% else %}
+				<p>There are no files.</p>
+			{% endif %}
+		</div>
+		<div class="file-content">
+			<pre>{{content}}</pre>
+			<br>
+		</div>
+		<div class="program-elements">
+			Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae, sint? Itaque ratione dolorem
+			voluptatum enim, suscipit reprehenderit harum animi amet debitis perspiciatis libero quaerat odit facere
+			consequuntur qui nostrum a. Similique tempora placeat, vero cum velit dicta blanditiis eligendi. Cupiditate
+			quisquam ea quam. Neque magni quas praesentium ab. Velit dolorem excepturi modi dicta temporibus saepe, ad
+			quis perferendis asperiores cumque, numquam consectetur corporis dolores accusantium similique molestias, at
+			voluptas. Mollitia laboriosam earum molestiae eum minus ducimus consectetur itaque inventore voluptatum.
+		</div>
+		<div class="tabs">
+			<div class="tab-list">
+				<div class="tab"><button>Tab 1</button></div>
+				<div class="tab"><button>Tab 2</button></div>
+				<div class="tab"><button>Tab 3</button></div>
+				<div class="tab"><button>Tab 4</button></div>
+			</div>
+			<div class="tab-content">
+				Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vero optio odit ab veniam! Ipsum nesciunt officia consequuntur quia praesentium numquam explicabo ut. Repudiandae quam sequi repellat excepturi. Earum, illo nostrum!
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

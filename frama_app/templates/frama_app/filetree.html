@@ -1,0 +1,23 @@
+<li>
+    {% if dir %}
+    {{dir.name}}
+    {% endif %}
+        <ul>
+            {%for file in files %}
+                {% if file.parent == dir %}
+                    <li>
+                        <a href="{% url 'frama_app:file' file.name %}">{{ file.name }}</a>
+                    </li>
+                {% endif %}
+            {%endfor%}
+        </ul>
+    <ul>
+     {%for node in directories %}
+         {% if node.parent == dir %}
+          {%with dir=node template_name="frama_app/filetree.html" %}
+               {%include template_name%}
+          {%endwith%}
+         {% endif %}
+     {%endfor%}
+     </ul>
+</li>
