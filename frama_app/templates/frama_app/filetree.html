@@ -6,7 +6,8 @@
             {%for file in files %}
                 {% if file.parent == dir %}
                     <li>
-                        <a href="{% url 'frama_app:file' file.name %}">{{ file.name }}</a>
+                        {% firstof request.GET.tab "0" as tab_value %}
+                        <a href="{% url 'frama_app:file' file.name tab_value %}">{{ file.name }}</a>
                     </li>
                 {% endif %}
             {%endfor%}

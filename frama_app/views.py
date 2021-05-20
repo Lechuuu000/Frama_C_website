@@ -1,18 +1,21 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import DirectoryForm, FileForm, DeletionForm
-from .models import User, File, Directory
+from .forms import *
+from .models import User, File, Directory, Section
 from django.utils import timezone
 from django.db.models import Q
-from django.forms import modelformset_factory
+from django.db import IntegrityError
 import os
 import logging
+from .frama import *
 
 logger = logging.getLogger(__name__)
 
-def index(request, fName=None):
+
+def index(request, fName='', tab=0):
     directories = Directory.objects.filter( exists = True)
     files = File.objects.filter(exists = True)
+    sections = ''
     try:
         file = File.objects.get(name=fName)
     except:
@@ -21,13 +24,31 @@ def index(request, fName=None):
         content = ''
         try:
             content = file.file_object.read()
-            content = content.decode('unicode-escape')
-            
+            content = content.decode()
         except:
             content = 'Error when reading file!\n'
-
+        # get_frama_sections(fName)
+        sections = get_sections_for_output(file)
     
-    context = {'content': content, 'directories': directories, 'files': files}
+    form = None
+    if tab == 1:
+        form = ProversForm()
+    elif tab == 2:
+        form = VCsForm()
+    elif tab == 3:
+        form = file.frama_output
+
+
+    context = {
+        'content': content, 
+        'directories': directories, 
+        'files': files, 
+        'sections': sections,
+        'fName': fName,
+        'tab': tab,
+        'form': form
+    }
+
     return render(request, 'frama_app/index.html', context)
 
 
@@ -54,10 +75,15 @@ def add_file(request):
         # file.date_created = os.path.getmtime(file.file_object.path)
         file.name = file.file_object.name
         try:
-            form.save()
+            file.save()
         except IntegrityError:
             return render(request, 'frama_app/add_dir.html', {'form': form, 'non_unique': True})
         
+        sections = create_sections(file)
+        Section.objects.bulk_create(sections)
+        prover = request.session.get('prover', 'alt-ergo')
+        conditions = request.session.get('conditions', [])
+        update_frama_output(file, prover, conditions)
         return HttpResponseRedirect('/frama_app')
 
     context = {'form': form}
@@ -81,4 +107,26 @@ def delete_node(request):
 
     return render(request, 'frama_app/delete.html', {'form': form})
 
-    
+def change_tab(request, fName, tab):
+    return HttpResponseRedirect('/frama_app/file/' + fName + '/' + str(tab))
+
+
+def change_prover(request, fName):
+    prover = request.POST['prover']
+    request.session['prover'] = prover
+    print('prover changed to ' + request.session['prover'])
+    return HttpResponseRedirect('/frama_app/file/' + fName + '/1')
+
+def change_vcs(request, fName):
+    new_vcs = dict(request.POST).get('conditions', [])
+    request.session['vcs'] = new_vcs
+    print('New verification conditions:')
+    print(request.session['vcs'])
+    return HttpResponseRedirect('/frama_app/file/' + fName + '/2')
+
+def run_frama(request, fName):
+    file = File.objects.get(name=fName)
+    prover = request.session.get('prover', '')
+    conditions = request.session.get('vcs', [])
+    update_frama_output(file, prover, conditions)
+    return HttpResponseRedirect('/frama_app/file/' + fName + '/0')

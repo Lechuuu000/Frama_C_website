@@ -13,39 +13,74 @@
 <body>
 	<div class="main-grid">
 		<div class="menu-bar">
-			<button><a href={% url 'frama_app:add_dir' %}>Add Directory</a></button>
-			<button><a href={% url 'frama_app:add_file' %}>Add File</a></button>
-			<button><a href={% url 'frama_app:delete_node' %}>Delete file/directory</a></button>
+			<div id="left-buttons">
+				<button><a href={% url 'frama_app:add_dir' %}>Add Directory</a></button>
+				<button><a href={% url 'frama_app:add_file' %}>Add File</a></button>
+				<button><a href={% url 'frama_app:delete_node' %}>Delete file/directory</a></button>
+			</div>
+			<div id="right-buttons">
+				{% if fName %}
+					<button><a href="{% url 'frama_app:run_frama' fName %}">Run Configuration</a></button>
+				{% endif %}
+			</div>
+			
 		</div>
 		<div class="file-select">
 			<h1>Files:</h1>
 			{% if files %}
 				{%include "frama_app/filetree.html" %}
 			{% else %}
-				<p>There are no files.</p>
+				<p style="text-align: center;">There are no files.</p>
 			{% endif %}
 		</div>
 		<div class="file-content">
 			<pre>{{content}}</pre>
-			<br>
 		</div>
 		<div class="program-elements">
-			Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae, sint? Itaque ratione dolorem
-			voluptatum enim, suscipit reprehenderit harum animi amet debitis perspiciatis libero quaerat odit facere
-			consequuntur qui nostrum a. Similique tempora placeat, vero cum velit dicta blanditiis eligendi. Cupiditate
-			quisquam ea quam. Neque magni quas praesentium ab. Velit dolorem excepturi modi dicta temporibus saepe, ad
-			quis perferendis asperiores cumque, numquam consectetur corporis dolores accusantium similique molestias, at
-			voluptas. Mollitia laboriosam earum molestiae eum minus ducimus consectetur itaque inventore voluptatum.
+			{% if sections %}
+			<pre>------------------------------------------------------------</pre>
+			{% for s in sections %}
+				<pre style="background-color: {{s.1}}; padding-left: 1rem;">{{s.0}}</pre>
+				<pre>------------------------------------------------------------</pre>
+			{% endfor %}
+			{% else %}
+				<p>No sections checked by Frama-c.</p>
+			{% endif %}
 		</div>
 		<div class="tabs">
 			<div class="tab-list">
-				<div class="tab"><button>Tab 1</button></div>
-				<div class="tab"><button>Tab 2</button></div>
-				<div class="tab"><button>Tab 3</button></div>
-				<div class="tab"><button>Tab 4</button></div>
+				{% if fName %}
+					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 1 %}">PROVERS</a></button></div>
+					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 2 %}">VCs</a></button></div>
+					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 3 %}">RESULT</a></button></div>
+				{% else %}
+					<div class="tab"><button>PROVERS</button></div>
+					<div class="tab"><button>VCs</button></div>
+					<div class="tab"><button>RESULT</button></div>
+				{% endif %}
 			</div>
 			<div class="tab-content">
-				Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vero optio odit ab veniam! Ipsum nesciunt officia consequuntur quia praesentium numquam explicabo ut. Repudiandae quam sequi repellat excepturi. Earum, illo nostrum!
+				{% if tab == 1 %}		<!--provers-->
+					<div class="tab-form">
+						<form action="{% url 'frama_app:prover' fName %}" method="POST">
+							{% csrf_token %}
+							{{form}}
+							<input type="submit" id="prover-submit"/>
+						</form>
+					</div>
+				{% elif tab == 2 %}		<!--VCs-->
+					<div class="tab-form">
+						<form action="{% url 'frama_app:vcs' fName %}" method="POST">
+							{% csrf_token %}
+							{{form}}
+							<input type="submit" id="vcs-submit"/>
+						</form>
+					</div>
+				{% elif tab == 3 %}		<!--result-->
+					<div id="result-div">
+						<pre id="result">{{form}}</pre>
+					</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>

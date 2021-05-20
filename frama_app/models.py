@@ -12,8 +12,6 @@ class User(models.Model):
     name = models.CharField( max_length=100)
     login = models.CharField( max_length=50, unique=True)
     password = models.CharField( max_length=100)
-
-
     def __str__(self):
         return self.login
 
@@ -29,13 +27,6 @@ class Node(models.Model):
         abstract = True
     def __str__(self):
         return self.name
-    def get_path(self):
-        path = '/' + self.name
-        node = self
-        while node.name is not 'root':
-            node = node.parent
-            path = '/' + node.name + path
-        return path
     def remove(self):
         self.exists = False
         self.save()
@@ -55,8 +46,7 @@ class Directory(Node):
 
 class File(Node):
     file_object = models.FileField(null=True)
-    def get_path(self):
-        return self.file_object.path
+    frama_output = models.TextField(default='')
     
 
 class StatusData(models.Model):
@@ -65,30 +55,38 @@ class StatusData(models.Model):
 
 
 class Section(models.Model):
-    class Category(models.IntegerChoices):
-        PROCEDURE = 1, _('Procedure')
-        PROPERTY = 2, _('Sophomore')
-        LEMMA = 3, _('Lemma')
-        ASSERTION = 4, _('Assertion')
-        INVARIANT = 5, _('Invariant')
-        PRECONDITION = 6, _('Precondition')
-        POSTCONDITION = 7, _('Postcondition')
+    class Category(models.TextChoices):
+        REQUIRES = 'requires'
+        ENSURES = 'ensures'
+        VARIANT = 'variant'
+        INVARIANT = 'invariant'
+        PREDICATE = 'predicate'
+        GHOST = 'ghost'
+        ASSERT = 'assert'
+        LEMMA = 'lemma'
+        ASSIGNS = 'assigns'
+        EXITS = 'exits'
+        CHECK = 'check'
+        BREAKS = 'breaks'
+        CONTINUES = 'continues'
+        RETURNS = 'returns'
 
-    class Status(models.IntegerChoices):
-        PROVED = 1, _('Proved')
-        INVALID = 2, _('Invalid')
-        COUNTER_EX = 3, _('Counterexample')
-        UNCHECKED = 4, _('Unchecked')
 
-    name = models.CharField(max_length=50)
-    description = models.TextField()
+    class Status(models.TextChoices):
+        UNKNOWN = "lightgray"
+        VALID = "mediumseagreen"
+        FAILED = "red"
+        TIMEOUT = "mediumslateblue"
+
+    name = models.CharField(max_length=50, blank=True)
+    description = models.TextField(blank=True)
     date_created = models.DateField(auto_now=False, auto_now_add=False)
-    category = models.IntegerField(choices = Category.choices)
-    status = models.IntegerField(choices = Status.choices)
-    status_data = models.ForeignKey(StatusData, on_delete=models.CASCADE)
+    category = models.CharField(max_length=20,choices = Category.choices)
+    status = models.CharField(max_length=20,choices = Status.choices, blank=True)
+    status_data = models.ForeignKey(StatusData, on_delete=models.CASCADE, blank=True, null=True)
     file = models.ForeignKey(File, on_delete=models.CASCADE)
-    parent_section = models.ForeignKey('Section', on_delete=models.CASCADE)
+    line = models.IntegerField(default=0)
     
     def __str__(self):
-        return self.name + ': ' + self.category + ', ' + self.status
+        return str(self.category) + ', line ' + str(self.line)
 
