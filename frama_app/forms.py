@@ -1,6 +1,7 @@
 from django.forms import ModelForm, ModelMultipleChoiceField, Form
 from django import forms
-from .models import Directory, File, Node, Section
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import *
 
 class DirectoryForm(ModelForm):
     class Meta:
@@ -41,6 +42,17 @@ class VCsForm(Form):
         choices = Section.Category.choices,
         widget = forms.CheckboxSelectMultiple()
     )
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('username', 'name', 'password')
+
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ('username', 'name', 'password')
 
     
 

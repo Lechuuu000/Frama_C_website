@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib import admin
 
 from . import views
 
@@ -6,6 +7,11 @@ app_name = 'frama_app'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('index', views.index, name='index'),
+    path('login', views.login_page, name='login'),
+    path('logout', views.logout_btn, name='logout'),
+    path('auth/', views.auth, name='auth'),
+
     path('file/<str:fName>/<int:tab>', views.index, name='file'),
     path('prover/<str:fName>', views.change_prover, name='prover'),
     path('vcs/<str:fName>', views.change_vcs, name='vcs'),

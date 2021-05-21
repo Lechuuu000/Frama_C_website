@@ -20,5 +20,5 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('frama_app/', include('frama_app.urls', namespace='frama_app')),
-    # path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

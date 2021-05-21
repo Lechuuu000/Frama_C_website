@@ -1,18 +1,26 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import *
-from .models import User, File, Directory, Section
+from .models import *
+from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
 from django.db import IntegrityError
 import os
 import logging
 from .frama import *
+from django.contrib.auth import authenticate, login, logout
+
+import json
+
 
 logger = logging.getLogger(__name__)
 
 
 def index(request, fName='', tab=0):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/frama_app/login')
+
     directories = Directory.objects.filter( exists = True)
     files = File.objects.filter(exists = True)
     sections = ''
@@ -38,7 +46,6 @@ def index(request, fName='', tab=0):
     elif tab == 3:
         form = file.frama_output
 
-
     context = {
         'content': content, 
         'directories': directories, 
@@ -54,7 +61,7 @@ def index(request, fName='', tab=0):
 
 def add_dir(request):
     form = DirectoryForm(request.POST)
-    form.instance.owner = User.objects.get(login='test')
+    form.instance.owner = User.objects.get(name='test')
     form.instance.date_created = timezone.now()
 
     if form.is_valid():
@@ -71,7 +78,7 @@ def add_file(request):
     if form.is_valid():
         file = form.save(commit=False)
         
-        file.owner = User.objects.get(login='test')
+        file.owner = User.objects.get(name='test')
         # file.date_created = os.path.getmtime(file.file_object.path)
         file.name = file.file_object.name
         try:
@@ -130,3 +137,27 @@ def run_frama(request, fName):
     conditions = request.session.get('vcs', [])
     update_frama_output(file, prover, conditions)
     return HttpResponseRedirect('/frama_app/file/' + fName + '/0')
+
+def login_page(request):
+    return render(request, 'frama_app/login.html')
+
+def logout_btn(request):
+    logout(request)
+    return HttpResponseRedirect('/frama_app/login')
+
+def auth(request):
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+
+    if username is None or password is None:
+        return HttpResponseRedirect('/frama_app/login')
+
+    print(username, password)
+
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+
+        return HttpResponseRedirect(('/frama_app/index'))
+    else:
+        return HttpResponseRedirect('/frama_app/login')

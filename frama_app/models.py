@@ -4,19 +4,21 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractUser
 
 
-# # SOLUTION STARTS HERE #
+class Entity(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    valid = models.BooleanField(default=True)
 
-class User(models.Model):
-    name = models.CharField( max_length=100)
-    login = models.CharField( max_length=50, unique=True)
-    password = models.CharField( max_length=100)
-    def __str__(self):
-        return self.login
+    class Meta:
+        abstract = True
+
+class User(AbstractUser):
+    name = models.CharField( max_length=200)
 
 
-class Node(models.Model):
+class Node(Entity):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, default='')
     date_created = models.DateField(auto_now=False, auto_now_add=True)
@@ -49,12 +51,12 @@ class File(Node):
     frama_output = models.TextField(default='')
     
 
-class StatusData(models.Model):
+class StatusData(Entity):
     data = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class Section(models.Model):
+class Section(Entity):
     class Category(models.TextChoices):
         REQUIRES = 'requires'
         ENSURES = 'ensures'
