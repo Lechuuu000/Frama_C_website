@@ -1,5 +1,6 @@
+from typing_extensions import Required
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from .forms import *
 from .models import *
 from django.urls import reverse
@@ -13,16 +14,15 @@ from django.contrib.auth import authenticate, login, logout
 
 import json
 
-
-logger = logging.getLogger(__name__)
+authentication_json_error = JsonResponse({"error": "not_authenticated"}, status=401)
 
 
 def index(request, fName='', tab=0):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/frama_app/login')
 
-    directories = Directory.objects.filter( exists = True)
-    files = File.objects.filter(exists = True)
+    # directories = Directory.objects.filter( exists = True)
+    # files = File.objects.filter(exists = True)
     sections = ''
     try:
         file = File.objects.get(name=fName)
@@ -48,8 +48,8 @@ def index(request, fName='', tab=0):
 
     context = {
         'content': content, 
-        'directories': directories, 
-        'files': files, 
+        # 'directories': directories, 
+        # 'files': files, 
         'sections': sections,
         'fName': fName,
         'tab': tab,
@@ -61,7 +61,7 @@ def index(request, fName='', tab=0):
 
 def add_dir(request):
     form = DirectoryForm(request.POST)
-    form.instance.owner = User.objects.get(name='test')
+    form.instance.owner = request.user
     form.instance.date_created = timezone.now()
 
     if form.is_valid():
@@ -78,7 +78,7 @@ def add_file(request):
     if form.is_valid():
         file = form.save(commit=False)
         
-        file.owner = User.objects.get(name='test')
+        file.owner = request.user
         # file.date_created = os.path.getmtime(file.file_object.path)
         file.name = file.file_object.name
         try:
@@ -161,3 +161,66 @@ def auth(request):
         return HttpResponseRedirect(('/frama_app/index'))
     else:
         return HttpResponseRedirect('/frama_app/login')
+
+
+
+def get_filesystem_tree(request):
+    if not request.user.is_authenticated:
+        return authentication_json_error
+
+    if request.is_ajax and request.method == 'GET':
+        entities = []
+
+        for file in File.objects.filter(exists=True, parent = request.user):
+            # if file.exists and file.owner == request.user:
+            entities.append({
+                "id": "fil" + str(file.pk),
+                "parent": "#" if file.parent is None else "dir" + str(file.parent.pk),
+                "text": file.name,
+            })
+
+        for directory in Directory.objects.filter(exists=True, parent = request.user):
+            # if directory.available and directory.owner == request.user:
+            entities.append({
+                "id": "dir" + str(directory.pk),
+                "parent": "#" if directory.parent is None else "dir" + str(directory.parent.pk),
+                "text": directory.name,
+            })
+
+        print(entities)
+
+        return JsonResponse(entities, status=200, content_type="application/json", safe=False)
+
+    return JsonResponse({"error": ""}, status=400)
+
+
+def get_file(request):
+    if not request.user.is_authenticated:
+        return authentication_json_error
+
+    if request.is_ajax and request.method == 'GET':
+        file_pk = request.GET.get('file')
+
+        if file_pk is None or not file_pk.isnumeric():
+            return JsonResponse({"error": ""}, status=404)
+
+        file = File.objects.filter(pk=file_pk).first()
+
+        if file is None or not file.available or file.owner != request.user:
+            return JsonResponse({"error": ""}, status=404)
+
+        file_sections_arr = []
+
+        file_sections = file.filesection_set.all()
+
+        for section in file_sections:
+            file_sections_arr.append({
+                "name": section.name,
+                "description": section.description,
+                "key": section.pk
+            })
+
+        file_dict = {"source_code": file.source_code, "name": file.name, "sections": file_sections_arr}
+        return JsonResponse(file_dict, status=200)
+
+    return JsonResponse({"error": ""}, status=400)

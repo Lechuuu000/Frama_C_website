@@ -7,7 +7,7 @@
                 {% if file.parent == dir %}
                     <li id="{{file.name}}">
                         {% firstof request.GET.tab "0" as tab_value %}
-                        <a href="{% url 'frama_app:file' file.name tab_value %}">{{ file.name }}</a>
+                        <a href="{% url 'frama_app:file' file.name tab_value %}"><button>{{ file.name }}</button></a>
                     </li>
                 {% endif %}
             {%endfor%}

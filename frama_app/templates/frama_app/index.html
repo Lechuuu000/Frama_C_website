@@ -36,14 +36,15 @@
 		</div>
 		<div class="file-select">
 			<h1>Files:</h1>
-			{% if files %}
+			<!-- {% if files %}
 				{%include "frama_app/filetree.html" %}
 			{% else %}
 				<p style="text-align: center;">There are no files.</p>
-			{% endif %}
+			{% endif %} -->
+			<div id="filesystem_tree"></div>
 		</div>
 		<div class="file-content">
-			<pre>{{content}}</pre>
+			<pre id="file-text-content">{{content}}</pre>
 		</div>
 		<div class="program-elements">
 			{% if sections %}

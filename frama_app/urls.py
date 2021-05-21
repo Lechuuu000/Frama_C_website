@@ -11,7 +11,9 @@ urlpatterns = [
     path('login', views.login_page, name='login'),
     path('logout', views.logout_btn, name='logout'),
     path('auth/', views.auth, name='auth'),
-
+    path('get/ajax/filesystem_tree/', views.get_filesystem_tree, name='get_filesystem_tree'),
+    
+    
     path('file/<str:fName>/<int:tab>', views.index, name='file'),
     path('prover/<str:fName>', views.change_prover, name='prover'),
     path('vcs/<str:fName>', views.change_vcs, name='vcs'),
