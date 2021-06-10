@@ -13,84 +13,100 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 	
-	<title>Assignment 1</title>
+	<title>Assignment AWWW</title>
 	
     <link rel="stylesheet" type="text/css" href="{% static 'frama_app/styles.css' %}">
+	<script>
+		const url_get_filesystem_tree = "{% url 'frama_app:get_filetree' %}";
+		const url_get_file = "{% url 'frama_app:file' %}";
+		const url_add_file = "{% url 'frama_app:add_file' %}";
+		const url_add_dir = "{% url 'frama_app:add_dir' %}";
+		const url_delete = "{% url 'frama_app:delete_node' %}";
+		const url_logout = "{% url 'frama_app:logout' %}";
+		const url_run = "{% url 'frama_app:run' %}"
+		const url_provers = "{% url 'frama_app:prover' %}"
+		const url_vcs = "{% url 'frama_app:vcs' %}"
+	</script>
+
+	<script src="{% static 'frama_app/main.js' %}?{% now 'U' %}" type="text/javascript"></script>
 </head>
 
 <body>
+	<div id="add-file-modal" class="modal">
+		<form class="addDeleteForm" id="add-file-form" method="POST" enctype="multipart/form-data">
+			<h1>Add file</h1>
+			<!-- {% csrf_token %} -->
+			{{add_file_form}}
+			<br>
+			<input type="submit"/>
+		</form>		
+	</div>
+	<div id="add-dir-modal" class="modal">
+		<form class="addDeleteForm" id="add-dir-form" method="POST">
+			<h1>Add directory</h1>
+			<!-- {% csrf_token %} -->
+			{{add_dir_form}}
+			<br>
+			<input type="submit"/>
+		</form>
+	</div>
+	<div id="delete-modal" class="modal">
+		<form class="addDeleteForm" id="delete-form"  method="POST">
+			<h1>Files and directories to delete</h1>
+			<!-- {% csrf_token %} -->
+			{{delete_form}}
+			</br>
+			<input type="submit" value="Delete"/>
+		</form>
+	</div>
+	
 	<div class="main-grid">
 		<div class="menu-bar">
 			<div id="left-buttons">
-				<button><a href={% url 'frama_app:add_dir' %}>Add Directory</a></button>
-				<button><a href={% url 'frama_app:add_file' %}>Add File</a></button>
-				<button><a href={% url 'frama_app:delete_node' %}>Delete file/directory</a></button>
+				<button id="add-dir-btn">Add Directory</button>
+				<button id="add-file-btn">Add File</button>
+				<button id="delete-btn">Delete file/directory</button>
 			</div>
 			<div id="right-buttons">
-				{% if fName %}
-					<button><a href="{% url 'frama_app:run_frama' fName %}">Run Configuration</a></button>
-				{% endif %}
-				<button><a href="{% url 'frama_app:logout'%}">Logout</a></button>
+				<button id="run-btn">Run Configuration</button>
+				<button id="logout-btn">Logout</button>
 			</div>
-			
+		
 		</div>
 		<div class="file-select">
 			<h1>Files:</h1>
-			<!-- {% if files %}
-				{%include "frama_app/filetree.html" %}
-			{% else %}
-				<p style="text-align: center;">There are no files.</p>
-			{% endif %} -->
 			<div id="filesystem_tree"></div>
 		</div>
 		<div class="file-content">
-			<pre id="file-text-content">{{content}}</pre>
+			<pre id="file-text-content">Please select a file to open</pre>
 		</div>
-		<div class="program-elements">
-			{% if sections %}
-			<pre>------------------------------------------------------------</pre>
-			{% for s in sections %}
-				<pre style="background-color: {{s.1}}; padding-left: 1rem;">{{s.0}}</pre>
-				<pre>------------------------------------------------------------</pre>
-			{% endfor %}
-			{% else %}
-				<p>No sections checked by Frama-c.</p>
-			{% endif %}
-		</div>
+		
+		<div id="program-elements"></div>
+		
 		<div class="tabs">
 			<div class="tab-list">
-				{% if fName %}
-					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 1 %}">PROVERS</a></button></div>
-					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 2 %}">VCs</a></button></div>
-					<div class="tab"><button><a href="{% url 'frama_app:change_tab' fName 3 %}">RESULT</a></button></div>
-				{% else %}
-					<div class="tab"><button>PROVERS</button></div>
-					<div class="tab"><button>VCs</button></div>
-					<div class="tab"><button>RESULT</button></div>
-				{% endif %}
+				<div class="tab"><button id="tab1-btn" onclick="openTab(event, 1)">PROVERS</button></div>
+				<div class="tab"><button id="tab2-btn" onclick="openTab(event, 2)">VCs</button></div>
+				<div class="tab"><button id="tab3-btn" onclick="openTab(event, 3)">RESULT</button></div>
 			</div>
 			<div class="tab-content">
-				{% if tab == 1 %}		<!--provers-->
-					<div class="tab-form">
-						<form action="{% url 'frama_app:prover' fName %}" method="POST">
+					<div class="tab-form" id="tab1">
+						<form id="prover-form" method="POST">
 							{% csrf_token %}
-							{{form}}
+							{{provers_form}}
 							<input type="submit" id="prover-submit"/>
 						</form>
 					</div>
-				{% elif tab == 2 %}		<!--VCs-->
-					<div class="tab-form">
-						<form action="{% url 'frama_app:vcs' fName %}" method="POST">
+					<div class="tab-form" id="tab2">
+						<form id="vcs-form" method="POST">
 							{% csrf_token %}
-							{{form}}
+							{{vcs_form}}
 							<input type="submit" id="vcs-submit"/>
 						</form>
 					</div>
-				{% elif tab == 3 %}		<!--result-->
-					<div id="result-div">
-						<pre id="result">{{form}}</pre>
+					<div id="tab3">
+						<pre id="result"></pre>
 					</div>
-				{% endif %}
 			</div>
 		</div>
 	</div>

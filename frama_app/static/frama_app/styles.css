@@ -21,6 +21,29 @@ body {
     --purple: rgb(202, 104, 202);
 } */
 
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 3rem;
+    width: 20rem ;
+    height: min-content;
+    overflow: auto;
+    background-color: lightgray;
+    padding: 1rem;
+
+  }
+
+.addDeleteForm {
+    display: grid;
+    grid-column-end: 2;
+    justify-content: flex-start;
+}
+.hide {
+    display: none;
+  }
+
 .main-grid {
     display: grid;
     grid-template-columns: 15% 40% 45%;
@@ -86,7 +109,7 @@ body {
     width: 100%;
     text-align: center;
 }
-.file-select ul {
+/* .file-select ul {
     padding: 0;
     list-style-type: circle;
 }
@@ -96,10 +119,9 @@ body {
     list-style: disc;
     height: 2rem;
     line-height: 2rem; 
-    /* background-color: rgb(212, 211, 211); */
     width: 75%;
     margin-left: 1rem;
-} 
+}  */
 
 .file-content {
     grid-area: code;
@@ -118,7 +140,7 @@ body {
     /* position: fixed; */
 }
 
-.program-elements {
+#program-elements {
     grid-area: program-elements;
     background-color: var(--orange);
     padding: 1rem;
@@ -126,10 +148,18 @@ body {
     /* overflow-wrap: break-word; */
 }
 
-.program-elements > pre {
+#program-elements > pre {
     overflow-x: hidden;
     word-wrap: break-word;
+    padding-left: 1rem;
 }
+
+.section-inner-content {
+    flex-wrap: wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
 
 .tabs {
     grid-area: tabs;
@@ -141,7 +171,6 @@ body {
     align-content: flex-start;
     background-color: gray;
     height: 3rem;
-    
 }
 
 .tab {
@@ -158,15 +187,12 @@ body {
 .tab > button {
     width: 100%;
     height: 100%;
+    line-height: 1.7rem; /* used to center text vertically*/
+    padding-top: 0.4rem;
     background: none;
     border: none;
     outline: none;
 }
-
-/* .tab-content {
-
-} */
-
 
 .tab:hover {
     border-bottom: 5ch solid teal;
@@ -203,8 +229,11 @@ body {
     padding: 0;
     list-style-type: none;
 }
-
-#result-div {
+#tab2 {
+    display: none;
+}
+#tab3 {
+    display: none;
     height: 10rem;
     padding: 1rem;
     overflow: auto;

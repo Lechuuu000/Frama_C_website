@@ -9,18 +9,16 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('index', views.index, name='index'),
     path('login', views.login_page, name='login'),
-    path('logout', views.logout_btn, name='logout'),
+    path('logout', views.logout_user, name='logout'),
     path('auth/', views.auth, name='auth'),
-    path('get/ajax/filesystem_tree/', views.get_filesystem_tree, name='get_filesystem_tree'),
     
+    path('get/ajax/filetree', views.get_filetree, name='get_filetree'),
+    path('get/ajax/file', views.get_file, name='file'),
+    path('get/ajax/run', views.run_frama, name='run'),
     
-    path('file/<str:fName>/<int:tab>', views.index, name='file'),
-    path('prover/<str:fName>', views.change_prover, name='prover'),
-    path('vcs/<str:fName>', views.change_vcs, name='vcs'),
-    path('change_tab/<str:fName>/<int:tab>', views.change_tab, name='change_tab'),
-    path('run_frama/<str:fName>', views.run_frama, name='run_frama'),
-    path('add_dir', views.add_dir, name = 'add_dir'),
-    path('add_file', views.add_file, name = 'add_file'),
-    path('delete_node', views.delete_node, name = 'delete_node')
-
+    path('post/ajax/prover', views.change_prover, name='prover'),
+    path('post/ajax/vcs', views.change_vcs, name='vcs'),
+    path('post/ajax/add_dir', views.add_dir, name = 'add_dir'),
+    path('post/ajax/add_file', views.add_file, name = 'add_file'),
+    path('post/ajax/delete_node', views.delete_node, name = 'delete_node')
 ]

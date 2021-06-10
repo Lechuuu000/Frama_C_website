@@ -67,15 +67,6 @@ def update_frama_output(file, prover = None, conditions = []):
             s.status_data.data = ''
             s.status_data.save()
         
-
-def get_sections_for_output(file):
-    sections = list()
-    section_list = Section.objects.filter(file = file)
-    for s in section_list:
-        if s.status_data and s.status_data.data:
-            sections.append((s.status_data.data, s.status))
-
-    return sections
     
 
 def create_sections(file):
@@ -100,9 +91,10 @@ def create_sections(file):
             words = line[index+1:].split()
             category = words[0] if words[0] != 'loop' else words[1]
             curr_section = Section (
+                line = i,
+                name = '@' + category + ': line ' + str(i),
                 date_created = file.date_created,
                 category = Section.Category[category.upper()],
-                line = i,
                 file = file
             )
             inside_section=True

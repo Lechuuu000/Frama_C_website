@@ -26,10 +26,6 @@ class DeletionForm(Form):
         to_field_name = "name",
         required = False
         )
-    # def is_valid(self):
-    #     if not self.files and not self.directories:
-    #         return False
-    #     return super().is_valid(self)
 
 class ProversForm(Form):
     CHOICES = [('alt-ergo', 'Alt-Ergo'), ('z3', 'Z3'), ('cvc4', 'CVC4')]
