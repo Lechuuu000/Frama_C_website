@@ -10,7 +10,7 @@ urlpatterns = [
     path('index', views.index, name='index'),
     path('login', views.login_page, name='login'),
     path('logout', views.logout_user, name='logout'),
-    path('auth/', views.auth, name='auth'),
+    path('auth', views.auth, name='auth'),
     
     path('get/ajax/filetree', views.get_filetree, name='get_filetree'),
     path('get/ajax/file', views.get_file, name='file'),

@@ -42,8 +42,7 @@ window.onload = () => {
             }));
             $focusSection.append($('<pre>').addClass('section-inner-content').css("background-color", section.color).html(section.data).attr('id', `focus${key}`));
         }
-
-        $resultTabContent.val(logs)
+        $resultTabContent.text(logs)
 
     }
 

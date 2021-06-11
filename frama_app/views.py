@@ -36,6 +36,9 @@ def index(request):
 
 
 def add_dir(request):
+    if not request.user or not request.user.is_authenticated:
+        return authentication_error
+
     form = DirectoryForm(request.POST)
     form.instance.owner = request.user
     form.instance.date_created = timezone.now()
@@ -50,7 +53,7 @@ def add_dir(request):
 
 
 def add_file(request):
-    if not request.user.is_authenticated:
+    if not request.user or not request.user.is_authenticated:
         return authentication_error
 
     if request.is_ajax and request.method == "POST":
@@ -84,6 +87,9 @@ def add_file(request):
 
 
 def delete_node(request):
+    if not request.user or not request.user.is_authenticated:
+        return authentication_error
+        
     if request.is_ajax and request.method == 'POST':
         form = DeletionForm(request.POST)
         if form.is_valid():

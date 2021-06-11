@@ -19,7 +19,7 @@ class User(AbstractUser):
 
 
 class Node(Entity):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True, default='')
     date_created = models.DateField(auto_now=False, auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
